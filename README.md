@@ -6,8 +6,7 @@ Users input two company names (or tickers), and the tool analyzes their historic
 
 For meaningful results, the selected companies must operate in the **same sector**. A typical example is comparing **Visa (V)** and **Mastercard (MA)**, which share similar business models and market dynamics.
 
-This project is intended for **educational and research purposes only** and does not constitute financial advice.
-
+This project is intended for **educational and research purposes only**
 ---
 
 ## Requirements
