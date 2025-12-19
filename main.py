@@ -16,7 +16,7 @@ tickers = [t1, t2]
 print(f"Downloading data for {t1} and {t2}...")
 data_full = yf.download(tickers, start=start_date, end=end_date)
 
-# Gestion des colonnes 
+# Gestion des colonnes selon la version de yfinance
 if 'Adj Close' in data_full.columns:
     data = data_full['Adj Close'].copy()
 else:
@@ -46,23 +46,23 @@ else:
     entry_threshold = 2.0
     
     data['Signal'] = 0
-    # Si Z-Score > 2, le spread est "cher" -> On VEND le spread (Short T2, Long T1)
+    # Si Z-Score > 2, le spread est "cher" -> On VEND le spread (Short PEP, Long KO)
     data.loc[data['Z-Score'] > entry_threshold, 'Signal'] = -1 
-    # Si Z-Score < -2, le spread est "pas cher" -> On ACHETE le spread (Long T2, Short T1)
+    # Si Z-Score < -2, le spread est "pas cher" -> On ACHETE le spread (Long PEP, Short KO)
     data.loc[data['Z-Score'] < -entry_threshold, 'Signal'] = 1
 
     # Affichage d'un aperçu
     print("\nAperçu des données avec Z-Score et Signaux :")
-    print(data[[t1, t2, 'Spread', 'Z-Score', 'Signal']].tail(10))
+    print(data[['KO', 'PEP', 'Spread', 'Z-Score', 'Signal']].tail(10))
 
-    # 6. Visualisation (Optionnel mais recommandé)
+    # 6. Visualisation 
     try:
         plt.figure(figsize=(12, 6))
         data['Z-Score'].plot(label='Z-Score')
         plt.axhline(entry_threshold, color='red', linestyle='--', label='Seuil Vente')
         plt.axhline(-entry_threshold, color='green', linestyle='--', label='Seuil Achat')
         plt.axhline(0, color='black', linewidth=1)
-        plt.title(f"Pairs Trading: Z-Score du Spread ({t2} vs {Beta:.2f}*{t1})")
+        plt.title(f"Pairs Trading: Z-Score du Spread (PEP vs {Beta:.2f}*KO)")
         plt.legend()
         plt.show()
     except Exception as e:
