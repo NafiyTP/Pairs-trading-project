@@ -8,7 +8,12 @@ import matplotlib.pyplot as plt
 start_date = "2021-01-01"
 end_date = "2024-01-01"
 
-tickers = ["KO", "PEP"]
+print("--- Pairs Trading Analysis ---")
+t1 = input("Enter first ticker (e.g. KO): ").upper()
+t2 = input("Enter second ticker (e.g. PEP): ").upper()
+tickers = [t1, t2]
+
+print(f"Downloading data for {t1} and {t2}...")
 data_full = yf.download(tickers, start=start_date, end=end_date)
 
 # Gestion des colonnes 
@@ -22,14 +27,14 @@ if data.empty:
     print("Aucune donnée récupérée. Vérifiez votre connexion internet.")
 else:
     # 2. Calcul du Beta (Hedge Ratio) dynamique
-
-    slope, intercept = np.polyfit(data['KO'], data['PEP'], 1)
+    # On cherche la relation : T2 = Beta * T1 + Alpha
+    slope, intercept = np.polyfit(data[t1], data[t2], 1)
     Beta = slope
     print(f"Beta calculé sur la période : {Beta:.4f}")
 
     # 3. Calcul du Spread
-    # Spread = Prix_PEP - (Beta * Prix_KO)
-    data['Spread'] = data['PEP'] - (Beta * data['KO'])
+    # Spread = Prix_T2 - (Beta * Prix_T1)
+    data['Spread'] = data[t2] - (Beta * data[t1])
 
     # 4. Calcul du Z-Score (Indicateur normalisé)
     # Z-Score = (Spread - Moyenne) / Ecart-Type
@@ -41,23 +46,23 @@ else:
     entry_threshold = 2.0
     
     data['Signal'] = 0
-    # Si Z-Score > 2, le spread est "cher" -> On VEND le spread (Short PEP, Long KO)
+    # Si Z-Score > 2, le spread est "cher" -> On VEND le spread (Short T2, Long T1)
     data.loc[data['Z-Score'] > entry_threshold, 'Signal'] = -1 
-    # Si Z-Score < -2, le spread est "pas cher" -> On ACHETE le spread (Long PEP, Short KO)
+    # Si Z-Score < -2, le spread est "pas cher" -> On ACHETE le spread (Long T2, Short T1)
     data.loc[data['Z-Score'] < -entry_threshold, 'Signal'] = 1
 
     # Affichage d'un aperçu
     print("\nAperçu des données avec Z-Score et Signaux :")
-    print(data[['KO', 'PEP', 'Spread', 'Z-Score', 'Signal']].tail(10))
+    print(data[[t1, t2, 'Spread', 'Z-Score', 'Signal']].tail(10))
 
-    # 6. Visualisation (
+    # 6. Visualisation (Optionnel mais recommandé)
     try:
         plt.figure(figsize=(12, 6))
         data['Z-Score'].plot(label='Z-Score')
         plt.axhline(entry_threshold, color='red', linestyle='--', label='Seuil Vente')
         plt.axhline(-entry_threshold, color='green', linestyle='--', label='Seuil Achat')
         plt.axhline(0, color='black', linewidth=1)
-        plt.title(f"Pairs Trading: Z-Score du Spread (PEP vs {Beta:.2f}*KO)")
+        plt.title(f"Pairs Trading: Z-Score du Spread ({t2} vs {Beta:.2f}*{t1})")
         plt.legend()
         plt.show()
     except Exception as e:
