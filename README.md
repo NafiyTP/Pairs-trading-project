@@ -1,2 +1,2 @@
-# Cox-Ross-Rubinstein-CRR-
-In this project I will try to implement a Cox-Ross-Rubinstein (CRR) model
+# Pepsi Vs Coca
+In this project I implement a pairs trading model that compares pepsi and Coke assets, then computes the spread in order to know when to long/short
