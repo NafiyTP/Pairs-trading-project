@@ -69,6 +69,9 @@ else:
     shares_t1 = 0 # Nombre d'actions Ticker 1
     shares_t2 = 0 # Nombre d'actions Ticker 2
     portfolio_values = []
+    Sharpe_ratio = 0
+    MDD = 0
+    Winrate =0
     
     print(f"\n--- Démarrage du Backtest avec {initial_capital}$ ---")
     
@@ -80,6 +83,8 @@ else:
         # Valeur actuelle du portefeuille (Cash + Actions)
         current_val = cash + (shares_t1 * price1) + (shares_t2 * price2)
         portfolio_values.append(current_val)
+    
+
         
         # Vérification si on doit changer de position
         # On simplifie : si la position cible est différente de la position actuelle (déduite des actions)
@@ -119,9 +124,13 @@ else:
                         shares_t1 = num_units * Beta
                         # On reçoit cash de T2, on paie T1
                         cash -= (shares_t2 * price2) + (shares_t1 * price1)
+   
+            
 
     data['Portfolio Value'] = portfolio_values
-    
+    m = np.mean(portfolie_values)
+    vola = np.std(portfolio_values)
+    sharpe_ratio = m / vola  * np.sqrt( 3*252)
     final_value = portfolio_values[-1]
     perf = ((final_value - initial_capital) / initial_capital) * 100
     
@@ -150,4 +159,3 @@ else:
         plt.show()
     except Exception as e:
         print(f"Erreur graphique : {e}")
-
